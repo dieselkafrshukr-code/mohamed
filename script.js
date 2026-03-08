@@ -14,9 +14,9 @@ container.appendChild(renderer.domElement);
 
 // Load User's image
 const textureLoader = new THREE.TextureLoader();
-// Using the image found in the parent directory!
-const imgUrl = '../21.jpeg';
-const texture = textureLoader.load(imgUrl, function(tex) {
+// Using the local image!
+const imgUrl = '21.jpeg';
+const texture = textureLoader.load(imgUrl, function (tex) {
     // Adjust aspect ratio based on loaded image
     const aspect = tex.image.width / tex.image.height;
     // Plane size logic
@@ -138,7 +138,7 @@ window.addEventListener('mousemove', (e) => {
     // Parallax logic for rotation
     const mouseX = (e.clientX - windowHalfX);
     const mouseY = (e.clientY - windowHalfY);
-    
+
     gsap.to(plane.rotation, {
         x: (mouseY / windowHalfY) * 0.15,
         y: (mouseX / windowHalfX) * 0.15,
@@ -216,14 +216,14 @@ const clock = new THREE.Clock();
 
 function animate() {
     requestAnimationFrame(animate);
-    
+
     material.uniforms.uTime.value = clock.getElapsedTime();
-    
+
     // Lerp mouse for smooth shader interaction
     mouse.x += (targetMouse.x - mouse.x) * 0.1;
     mouse.y += (targetMouse.y - mouse.y) * 0.1;
     material.uniforms.uMouse.value.set(mouse.x, mouse.y);
-    
+
     renderer.render(scene, camera);
 }
 
