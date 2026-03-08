@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mohamed Walid | AI Engineer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
         href="https://fonts.googleapis.com/css2?family=Anton&family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap"
         rel="stylesheet" />
@@ -14,58 +13,38 @@
 </head>
 
 <body>
-
-    <!-- Particle canvas behind everything -->
-    <canvas id="bg-particles"></canvas>
-
-    <!-- Three.js canvas -->
-    <div id="scene-wrap"></div>
-
-    <!-- Red scan lines overlay -->
+    <canvas id="bg"></canvas>
+    <div id="scene"></div>
     <div class="scanlines"></div>
 
-    <!-- Hero UI -->
-    <div class="ui" id="ui">
-
-        <!-- Top nav -->
-        <nav class="nav" id="nav">
-            <span class="brand">M<span class="accent">.</span>WALID</span>
+    <div class="ui">
+        <nav id="nav">
+            <span class="brand">M<em>.</em>WALID</span>
             <ul>
                 <li><a href="#">ABOUT</a></li>
                 <li><a href="#">PROJECTS</a></li>
-                <li><a href="#">SKILLS</a></li>
-                <li><a href="#" class="cta-btn">CONTACT</a></li>
+                <li><a href="#" class="hire">HIRE ME</a></li>
             </ul>
         </nav>
 
-        <!-- Centre hero text -->
-        <div class="hero-text" id="hero-text">
-            <p class="sub" id="sub">ARTIFICIAL INTELLIGENCE ENGINEER</p>
-            <h1 class="name" id="name">
-                <span class="word" id="w1">MOHAMED</span>
-                <span class="word accent" id="w2">WALID</span>
-            </h1>
+        <div class="hero" id="hero">
+            <p class="role" id="role">AI &amp; MACHINE LEARNING ENGINEER</p>
+            <h1 id="h1a">MOHAMED</h1>
+            <h1 id="h1b" class="red">WALID</h1>
+            <p class="desc" id="desc">Crafting intelligent systems &amp; immersive digital experiences</p>
         </div>
 
-        <!-- Bottom bar -->
-        <div class="bottom-bar" id="bottom-bar">
-            <div class="scroll-hint">
-                <span class="dot"></span>
-                <span>SCROLL TO EXPLORE</span>
+        <footer id="foot">
+            <span class="tip">↔ MOVE MOUSE — WATCH THE MASK TRANSFORM</span>
+            <div class="links">
+                <a href="https://github.com/dieselkafrshukr-code/mohamed" target="_blank">GITHUB</a>
+                <a href="#">LINKEDIN</a>
             </div>
-            <div class="socials">
-                <a href="#" aria-label="GitHub">GH</a>
-                <a href="#" aria-label="LinkedIn">LI</a>
-                <a href="#" aria-label="Twitter">TW</a>
-            </div>
-        </div>
+        </footer>
+    </div>
 
-    </div><!-- /ui -->
-
-    <!-- Three.js & GSAP -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="script.js"></script>
 </body>
 
