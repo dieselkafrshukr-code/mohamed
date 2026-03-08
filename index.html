@@ -14,43 +14,67 @@
 
 <body>
 
-    <!-- Hidden img: loaded by browser natively → bypasses CORS for file:// -->
-    <img id="face-img" src="21.png" alt="" crossorigin="anonymous" />
+    <!-- ░ BACKGROUND WEB LINES ░ -->
+    <canvas id="bg-canvas"></canvas>
 
-    <!-- Three.js canvas host -->
-    <div id="scene"></div>
+    <!-- ░ PAGE ░ -->
+    <div class="page" id="page">
 
-    <!-- Scanlines -->
-    <div class="scanlines"></div>
-
-    <!-- UI -->
-    <div class="ui" id="ui">
+        <!-- NAV -->
         <nav id="nav">
             <span class="brand">M<em>.</em>WALID</span>
             <ul>
                 <li><a href="#">ABOUT</a></li>
                 <li><a href="#">PROJECTS</a></li>
-                <li><a href="#" class="hire-btn">HIRE ME</a></li>
+                <li><a href="#" class="hire">HIRE ME</a></li>
             </ul>
         </nav>
 
-        <div class="hero" id="hero">
-            <span class="badge" id="badge">AI · ML · DEEP LEARNING</span>
-            <h1 id="h1a">MOHAMED</h1>
-            <h1 id="h1b" class="stroke">WALID</h1>
-            <p class="sub" id="sub">Move your mouse — watch the mask transform</p>
-        </div>
+        <!-- HERO -->
+        <section class="hero">
 
+            <!-- LEFT: text -->
+            <div class="hero-text" id="hero-text">
+                <p class="role" id="role">ARTIFICIAL INTELLIGENCE</p>
+                <h1 id="h1a">MOHAMED</h1>
+                <h1 id="h1b" class="stroke">WALID</h1>
+                <p class="desc" id="desc">
+                    Building intelligent systems &amp; immersive digital experiences
+                </p>
+                <a href="#" class="cta" id="cta">VIEW PROJECTS ↗</a>
+            </div>
+
+            <!-- RIGHT: photo card + 3D mask -->
+            <div class="photo-card" id="photo-card">
+
+                <!-- Real photo — background layer -->
+                <img src="21.png" id="user-photo" alt="Mohamed Walid" />
+
+                <!-- Three.js canvas — positioned over head area ONLY -->
+                <canvas id="mask-canvas"></canvas>
+
+                <!-- decorative label -->
+                <div class="card-tag">SPIDER-MAN AI</div>
+
+            </div>
+
+        </section>
+
+        <!-- FOOTER -->
         <footer id="foot">
             <div class="socials">
                 <a href="https://github.com/dieselkafrshukr-code/mohamed" target="_blank">GITHUB</a>
                 <a href="#">LINKEDIN</a>
+                <a href="#">TWITTER</a>
             </div>
-            <span class="build">THREE.JS + GSAP © 2026</span>
+            <span class="scroll-hint">
+                <span class="dot"></span>MOVE MOUSE ON MASK
+            </span>
         </footer>
+
     </div>
 
-    <!-- Libraries -->
+    <!-- LIBS -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="script.js"></script>

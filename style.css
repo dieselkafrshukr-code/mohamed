@@ -1,16 +1,17 @@
+/* ── RESET ──────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
     margin: 0;
     padding: 0;
-    box-sizing: border-box
+    box-sizing: border-box;
 }
 
 :root {
-    --red: #e30b0b;
-    --red-glow: rgba(227, 11, 11, .7);
-    --black: #050505;
-    --white: #efefef;
+    --red: #e60000;
+    --red-glow: rgba(230, 0, 0, .65);
+    --black: #060606;
+    --white: #f0f0f0;
 }
 
 html,
@@ -23,182 +24,261 @@ body {
     font-family: 'Rajdhani', sans-serif;
 }
 
-/* Texture image — hidden, just used as texture source */
-#face-img {
-    position: fixed;
-    opacity: 0;
-    pointer-events: none;
-    width: 1px;
-    height: 1px;
-}
-
-/* Three wrapper */
-#scene {
+/* ── BG CANVAS ──────────────────────────────────────────────── */
+#bg-canvas {
     position: fixed;
     inset: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* ── PAGE SHELL ─────────────────────────────────────────────── */
+.page {
+    position: relative;
     z-index: 1;
-}
-
-#scene canvas {
-    display: block
-}
-
-/* Scanlines */
-.scanlines {
-    position: fixed;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    background: repeating-linear-gradient(to bottom,
-            transparent 0, transparent 3px,
-            rgba(0, 0, 0, .05) 3px, rgba(0, 0, 0, .05) 4px);
-}
-
-/* UI */
-.ui {
-    position: fixed;
-    inset: 0;
-    z-index: 10;
+    width: 100%;
+    height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    pointer-events: none;
+    overflow: hidden;
 }
 
-/* Nav */
+/* ── NAV ────────────────────────────────────────────────────── */
 nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.8rem 4rem;
-    pointer-events: auto;
+    padding: 1.6rem 3.5rem;
     opacity: 0;
-    transform: translateY(-36px);
+    transform: translateY(-30px);
+    flex-shrink: 0;
 }
 
 .brand {
     font-family: 'Anton', sans-serif;
-    font-size: 2rem;
+    font-size: 1.9rem;
     letter-spacing: 3px;
-    cursor: pointer;
 }
 
 .brand em {
     color: var(--red);
     font-style: normal;
-    text-shadow: 0 0 14px var(--red)
+    text-shadow: 0 0 12px var(--red);
 }
 
 nav ul {
     list-style: none;
     display: flex;
-    gap: 2.5rem
+    gap: 2rem;
 }
 
 nav a {
     color: rgba(255, 255, 255, .5);
     text-decoration: none;
     font-weight: 700;
-    font-size: .95rem;
+    font-size: .9rem;
     letter-spacing: 2px;
     transition: color .25s;
 }
 
 nav a:hover {
-    color: var(--red)
+    color: var(--red);
 }
 
-.hire-btn {
+.hire {
     border: 1px solid var(--red) !important;
     border-radius: 3px;
-    padding: .3rem 1.1rem;
+    padding: .3rem 1rem;
     color: var(--red) !important;
-    transition: background .25s, color .25s !important;
 }
 
-.hire-btn:hover {
+.hire:hover {
     background: var(--red) !important;
-    color: #fff !important
+    color: #fff !important;
 }
 
-/* Hero */
+/* ── HERO ────────────────────────────────────────────────────── */
 .hero {
-    padding: 0 4.5rem;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5rem;
+    padding: 0 4rem;
+    overflow: hidden;
+}
+
+/* LEFT: text */
+.hero-text {
     display: flex;
     flex-direction: column;
     gap: .5rem;
-    align-self: flex-start;
-    margin-bottom: 6rem;
-    margin-top: auto;
-    pointer-events: none;
+    max-width: 420px;
 }
 
-.badge {
+.role {
     font-family: 'Orbitron', sans-serif;
-    font-size: .75rem;
+    font-size: .72rem;
     letter-spacing: 4px;
     color: var(--red);
     text-shadow: 0 0 10px var(--red);
     opacity: 0;
     transform: translateX(-40px);
-    display: inline-block;
 }
 
 h1 {
     font-family: 'Anton', sans-serif;
-    font-size: clamp(4.5rem, 10vw, 9.5rem);
+    font-size: clamp(3.5rem, 6vw, 6rem);
     line-height: .88;
     opacity: 0;
-    transform: translateY(80px) skewX(-3deg);
+    transform: translateY(70px) skewX(-3deg);
 }
 
 h1.stroke {
-    -webkit-text-stroke: 3px var(--red);
+    -webkit-text-stroke: 2px var(--red);
     color: transparent;
-    text-shadow: 0 0 40px var(--red-glow);
+    text-shadow: 0 0 35px var(--red-glow);
 }
 
-.sub {
-    font-size: .95rem;
-    letter-spacing: 3px;
-    color: rgba(255, 255, 255, .35);
-    margin-top: .5rem;
+.desc {
+    font-size: 1rem;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, .4);
+    line-height: 1.6;
     opacity: 0;
     transform: translateY(20px);
 }
 
-/* Footer */
+.cta {
+    display: inline-block;
+    margin-top: .8rem;
+    padding: .7rem 1.8rem;
+    border: 1px solid rgba(255, 255, 255, .25);
+    border-radius: 4px;
+    color: var(--white);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: .85rem;
+    letter-spacing: 2px;
+    transition: border-color .3s, color .3s;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.cta:hover {
+    border-color: var(--red);
+    color: var(--red);
+}
+
+/* ── PHOTO CARD ──────────────────────────────────────────────── */
+.photo-card {
+    position: relative;
+    width: 320px;
+    height: 430px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, .06),
+        0 30px 80px rgba(0, 0, 0, .8),
+        0 0 60px rgba(200, 0, 0, .15);
+    flex-shrink: 0;
+    opacity: 0;
+    transform: translateY(60px) scale(.95);
+}
+
+#user-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+}
+
+/* ← The 3D canvas sits only over the HEAD AREA of the photo */
+#mask-canvas {
+    position: absolute;
+    /* Tune these % values to align with where the head is in YOUR photo */
+    top: 3%;
+    left: 8%;
+    width: 84%;
+    height: 55%;
+    /* head is roughly top 55% of a portrait shot */
+    pointer-events: auto;
+    /* mouse events for parallax */
+    z-index: 2;
+}
+
+.card-tag {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: .6rem;
+    letter-spacing: 3px;
+    color: var(--red);
+    padding: .3rem .8rem;
+    border: 1px solid rgba(230, 0, 0, .4);
+    border-radius: 3px;
+    background: rgba(0, 0, 0, .5);
+    opacity: 0;
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────── */
 footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.5rem 4rem;
-    pointer-events: auto;
+    padding: 1.2rem 3.5rem;
+    flex-shrink: 0;
     opacity: 0;
     transform: translateY(30px);
 }
 
 .socials {
     display: flex;
-    gap: 2rem
+    gap: 2rem;
 }
 
 .socials a {
     color: rgba(255, 255, 255, .3);
     text-decoration: none;
     font-family: 'Orbitron', sans-serif;
-    font-size: .7rem;
+    font-size: .68rem;
     letter-spacing: 2px;
     transition: color .25s;
 }
 
 .socials a:hover {
-    color: var(--red)
+    color: var(--red);
 }
 
-.build {
-    font-size: .7rem;
-    letter-spacing: 2px;
-    color: rgba(255, 255, 255, .15);
-    font-family: 'Orbitron', sans-serif;
+.scroll-hint {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-size: .72rem;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, .25);
+}
+
+.dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--red);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: .3;
+        transform: scale(.6);
+    }
 }

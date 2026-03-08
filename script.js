@@ -1,407 +1,337 @@
 /* ================================================================
-   Mohamed Walid – TRUE 3D Spider-Man Portfolio
-   Face texture mapped on a 3D Sphere (like a real head)
-   Mouse rotation reveals genuine 3-D depth
-   Three.js r152 + GSAP 3
+   Mohamed Walid – Spider-Man Mask on 3D Head
+   Following the Roadmap:
+   • Photo = real <img> in background
+   • Three.js canvas = 3D Sphere ONLY over head area
+   • Spider-Man mask = Canvas 2D texture on MeshStandardMaterial
+   • GSAP timeline = elastic reveal animation
+   • Mouse parallax = mask follows mouse in 3D
    ================================================================ */
 (function () {
     'use strict';
 
-    /* ─── RENDERER ─────────────────────────────────────────────── */
-    const wrap = document.getElementById('scene');
+    /* ── 0. Background animated web lines (CSS canvas) ──────────── */
+    (function bgWeb() {
+        const c = document.getElementById('bg-canvas');
+        const cx = c.getContext('2d');
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+        const OCX = c.width * .5;
+        const OCY = c.height * .05;
+        const spokeCount = 20;
+        const ringGap = 90;
+        const maxRings = 15;
+
+        let t = 0;
+        function drawBg() {
+            requestAnimationFrame(drawBg);
+            cx.clearRect(0, 0, c.width, c.height);
+            cx.strokeStyle = `rgba(80,0,0,${.12 + Math.sin(t * .5) * .03})`;
+            cx.lineWidth = 1;
+
+            for (let i = 0; i < spokeCount; i++) {
+                const a = (i / spokeCount) * Math.PI * 1.5 - Math.PI * .75;
+                cx.beginPath();
+                cx.moveTo(OCX, OCY);
+                cx.lineTo(OCX + Math.cos(a) * c.width * 1.4,
+                    OCY + Math.sin(a) * c.height * 1.6);
+                cx.stroke();
+            }
+            for (let r = 1; r <= maxRings; r++) {
+                cx.beginPath();
+                cx.ellipse(OCX, OCY, r * ringGap * 1.15, r * ringGap, 0, 0, Math.PI * 2);
+                cx.stroke();
+            }
+            t += .015;
+        }
+        drawBg();
+
+        window.addEventListener('resize', () => {
+            c.width = window.innerWidth;
+            c.height = window.innerHeight;
+        });
+    })();
+
+
+    /* ── 1. Build Spider-Man mask texture via Canvas 2D ─────────── */
+    function buildSpiderManTexture() {
+        const S = 1024;
+        const cv = document.createElement('canvas');
+        cv.width = cv.height = S;
+        const g = cv.getContext('2d');
+
+        /* Base: red radial gradient */
+        const grad = g.createRadialGradient(S * .5, S * .38, 0, S * .5, S * .5, S * .7);
+        grad.addColorStop(0, '#ff2020');
+        grad.addColorStop(0.5, '#cc0000');
+        grad.addColorStop(1, '#7a0000');
+        g.fillStyle = grad;
+        g.fillRect(0, 0, S, S);
+
+        /* Web lines from origin above face */
+        const OX = S * .50;
+        const OY = -S * .10;
+        g.strokeStyle = 'rgba(0,0,0,0.78)';
+        g.lineWidth = S * .003;
+        g.lineCap = 'round';
+
+        const SPOKES = 18;
+        for (let i = 0; i < SPOKES; i++) {
+            const a = (i / SPOKES) * Math.PI * 1.45 - Math.PI * .725;
+            g.beginPath();
+            g.moveTo(OX + Math.cos(a) * S * .04, OY + Math.sin(a) * S * .04);
+            g.lineTo(OX + Math.cos(a) * S * 1.6, OY + Math.sin(a) * S * 1.6);
+            g.stroke();
+        }
+
+        /* Concentric arc rings */
+        for (let r = .14; r < 1.9; r += .115) {
+            g.beginPath();
+            g.ellipse(OX, OY, r * S, r * S * .88, 0, Math.PI * .1, Math.PI * .9);
+            g.stroke();
+        }
+
+        /* Eyes — classic angular Spider-Man tear-drop shape */
+        [
+            { cx: S * .285, cy: S * .41, flip: false },
+            { cx: S * .715, cy: S * .41, flip: true },
+        ].forEach(({ cx, cy, flip }) => {
+            g.save();
+            g.translate(cx, cy);
+            if (flip) g.scale(-1, 1);
+
+            /* Build angular teardrop path */
+            const W = S * .18, H = S * .115;
+            g.beginPath();
+            g.moveTo(W * .05, 0);                              // inner tip
+            g.bezierCurveTo(0, -H * .4, -W * .3, -H, -W * .7, -H); // top-inner arc
+            g.bezierCurveTo(-W * 1.05, -H, -W * 1.2, -H * .4, -W * 1.2, 0);  // outer top → middle
+            g.bezierCurveTo(-W * 1.2, H * .4, -W * .9, H * .7, -W * .4, H * .4); // outer → bottom-out
+            g.bezierCurveTo(-W * .2, H * .2, W * .0, H * .05, W * .05, 0);     // bottom-in → tip
+
+            /* Fill with white-silver gradient */
+            const eg = g.createLinearGradient(-W * 1.2, -H, 0, H);
+            eg.addColorStop(0, '#f5f5f5');
+            eg.addColorStop(1, '#b0b0b0');
+            g.fillStyle = eg;
+            g.fill();
+
+            /* Outer glow / shadow */
+            g.strokeStyle = 'rgba(0,0,0,.9)';
+            g.lineWidth = S * .004;
+            g.stroke();
+
+            /* Inner shine */
+            g.beginPath();
+            g.ellipse(-W * .55, -H * .25, W * .28, H * .22, .3, 0, Math.PI * 2);
+            g.fillStyle = 'rgba(255,255,255,.55)';
+            g.fill();
+
+            g.restore();
+        });
+
+        /* Subtle seam line down nose bridge */
+        g.beginPath();
+        g.moveTo(S * .5, S * .32);
+        g.lineTo(S * .5, S * .68);
+        g.strokeStyle = 'rgba(0,0,0,.3)';
+        g.lineWidth = S * .002;
+        g.stroke();
+
+        return new THREE.CanvasTexture(cv);
+    }
+
+
+    /* ── 2. Three.js Scene ──────────────────────────────────────── */
+    const canvas = document.getElementById('mask-canvas');
+    const cW = canvas.offsetWidth || 268;
+    const cH = canvas.offsetHeight || 236;
+
+    const renderer = new THREE.WebGLRenderer({
+        canvas,
+        alpha: true,     // transparent background → photo shows through
+        antialias: true,
+    });
+    renderer.setSize(cW, cH);
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    wrap.appendChild(renderer.domElement);
+
+    /* Clip the sphere so only the front hemisphere is visible */
+    renderer.localClippingEnabled = true;
+    const clipPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0.15);
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0a0000, 0.055);
+    const camera = new THREE.PerspectiveCamera(45, cW / cH, 0.1, 100);
+    camera.position.z = 3.2;
 
-    const camera = new THREE.PerspectiveCamera(
-        52, window.innerWidth / window.innerHeight, 0.01, 100
+
+    /* ── 3. Build the 3D mask mesh ──────────────────────────────── */
+    const maskTexture = buildSpiderManTexture();
+
+    const geometry = new THREE.SphereGeometry(
+        1,    // radius
+        64,   // widthSegments
+        64    // heightSegments
     );
-    camera.position.set(0, 0, 5.5);
 
-    /* ─── TEXTURE from <img> (works with file:// AND http://) ──── */
-    const imgEl = document.getElementById('face-img');
-    const texFace = new THREE.Texture(imgEl);
-    texFace.minFilter = THREE.LinearFilter;
-    texFace.magFilter = THREE.LinearFilter;
-    texFace.colorSpace = THREE.SRGBColorSpace || 'srgb'; // r152
-
-    function activateTex() {
-        if (imgEl.naturalWidth > 0) {
-            texFace.needsUpdate = true;
-            mat.uniforms.uHasTex.value = 1.0;
-        }
-    }
-    imgEl.addEventListener('load', activateTex);
-    imgEl.addEventListener('error', () => {
-        console.warn('Image did not load – showing mask only mode');
-    });
-    activateTex();
-
-    /* ─── SHADERS ──────────────────────────────────────────────── */
-
-    /* VERTEX — sphere with face projected onto front hemisphere */
-    const VERT = /* glsl */ `
-  precision highp float;
-
-  varying vec2  vFaceUV;      // orthographic projection of sphere normal
-  varying vec3  vNWorld;      // world-space normal for lighting
-  varying vec3  vPosWorld;    // world position
-  varying float vFacing;      // dot(normal, camera direction)
-
-  uniform float uTime;
-  uniform vec2  uMouse;       // -1..+1
-  uniform float uMorph;
-
-  void main(){
-    // World normal (sphere normals are the vertex positions normalised)
-    vNWorld    = normalize((modelMatrix * vec4(normal, 0.0)).xyz);
-    vPosWorld  = (modelMatrix * vec4(position, 1.0)).xyz;
-
-    // Facing the camera?
-    vFacing = dot(vNWorld, vec3(0.0, 0.0, 1.0));
-
-    // ── Orthographic UV: project sphere normal onto XY plane ──
-    // This gives a "face forward" mapping — perfect for a portrait texture
-    vFaceUV = vec2(normal.x * 0.5 + 0.5, normal.y * 0.5 + 0.5);
-
-    // ── Web-crack surface ripple during morph ──────────────────
-    vec3 pos = position;
-    float crack = sin(normal.x * 28.0 + uTime * 0.6)
-                * cos(normal.y * 28.0 - uTime * 0.4);
-    pos += normal * crack * uMorph * 0.04;
-
-    // ── Breathing ─────────────────────────────────────────────
-    pos *= 1.0 + sin(uTime * 0.85) * 0.006;
-
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
-  }
-`;
-
-    /* FRAGMENT — photo + procedural Spider-Man mask half-face blend */
-    const FRAG = /* glsl */ `
-  precision highp float;
-
-  varying vec2  vFaceUV;
-  varying vec3  vNWorld;
-  varying vec3  vPosWorld;
-  varying float vFacing;
-
-  uniform sampler2D uFace;
-  uniform float     uTime;
-  uniform vec2      uMouse;
-  uniform float     uMorph;
-  uniform float     uReveal;
-  uniform float     uHasTex;    // 1 if texture loaded, 0 if not
-
-  /* ─── Simplex noise 2-D ─────────────────────────────────── */
-  vec3 mod289v3(vec3 x){return x - floor(x*(1./289.))*289.;}
-  vec2 mod289v2(vec2 x){return x - floor(x*(1./289.))*289.;}
-  vec3 perm3(vec3 x){return mod289v3(((x*34.)+1.)*x);}
-  float snoise(vec2 v){
-    const vec4 C=vec4(.211324865405187,.366025403784439,-.577350269189626,.024390243902439);
-    vec2 i=floor(v+dot(v,C.yy));
-    vec2 x0=v-i+dot(i,C.xx);
-    vec2 i1=(x0.x>x0.y)?vec2(1,0):vec2(0,1);
-    vec4 x12=x0.xyxy+C.xxzz; x12.xy-=i1;
-    i=mod289v2(i);
-    vec3 p=perm3(perm3(i.y+vec3(0,i1.y,1))+i.x+vec3(0,i1.x,1));
-    vec3 m=max(.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.);
-    m=m*m;m=m*m;
-    vec3 x_=2.*fract(p*C.www)-1.;
-    vec3 h=abs(x_)-.5;
-    vec3 ox=floor(x_+.5); vec3 a0=x_-ox;
-    m*=1.79284291400159-.85373472095314*(a0*a0+h*h);
-    vec3 g;
-    g.x=a0.x*x0.x+h.x*x0.y;
-    g.yz=a0.yz*x12.xz+h.yz*x12.yw;
-    return 130.*dot(m,g);
-  }
-
-  /* ─── Procedural web lines ─────────────────────────────── */
-  float webLine(vec2 uv, float angle, float freq){
-    float s=sin(angle), c=cos(angle);
-    float proj=(uv.x-0.5)*c+(uv.y-0.5)*s;
-    return smoothstep(0.012, 0.0, abs(mod(proj*freq, 1.0)-0.5));
-  }
-
-  float concentric(vec2 uv, float freq){
-    float r=length(uv-0.5)*freq;
-    return smoothstep(0.04, 0.0, abs(mod(r, 1.0)-0.5));
-  }
-
-  /* ─── Full Spider-Man mask ─────────────────────────────── */
-  vec3 spideyMask(vec2 uv){
-    vec3 col = vec3(0.80, 0.04, 0.04); // base red
-
-    // Web grid (8 radial directions + concentric)
-    float web = 0.0;
-    float PI = 3.14159265;
-    for(int i=0;i<8;i++){
-      web += webLine(uv, float(i)*PI/8.0, 11.0);
-    }
-    web += concentric(uv, 9.0);
-    col = mix(col, vec3(0.0), clamp(web, 0.0, 1.0) * 0.92);
-
-    // Left eye (teardrop)
-    vec2 le = (uv - vec2(0.335, 0.605)) * vec2(1.7, 1.4);
-    float leftEye  = smoothstep(0.16, 0.09, length(le));
-
-    // Right eye
-    vec2 re = (uv - vec2(0.665, 0.605)) * vec2(1.7, 1.4);
-    float rightEye = smoothstep(0.16, 0.09, length(re));
-
-    float eyes = max(leftEye, rightEye);
-    col = mix(col, vec3(0.92, 0.95, 1.0), eyes);
-
-    // Eye inner reflection
-    vec2 leRef = le - vec2(-0.05, 0.05);
-    float lRef = smoothstep(0.06, 0.0, length(leRef));
-    vec2 reRef = re - vec2(-0.05, 0.05);
-    float rRef = smoothstep(0.06, 0.0, length(reRef));
-    col = mix(col, vec3(1.0), max(lRef, rRef) * 0.5);
-
-    // Top highlight
-    float topRim = smoothstep(0.45, 1.0, uv.y) * 0.2;
-    col += topRim * vec3(1.0, 0.2, 0.2);
-
-    return col;
-  }
-
-  /* ─── Physically-based-ish lighting ───────────────────── */
-  vec3 shade(vec3 col, vec3 N, vec3 V){
-    // Key light: red from upper-left
-    vec3 L1 = normalize(vec3(-2.0 + uMouse.x, 1.5 + uMouse.y, 3.0));
-    float diff1 = max(dot(N, L1), 0.0);
-    vec3 H1 = normalize(L1 + V);
-    float spec1 = pow(max(dot(N, H1), 0.0), 32.0);
-
-    // Fill light: cool blue-white from right
-    vec3 L2 = normalize(vec3(2.0, -0.5, 2.0));
-    float diff2 = max(dot(N, L2), 0.0) * 0.35;
-
-    // Rim light: strong red
-    float rim = pow(1.0 - max(dot(N, V), 0.0), 3.5);
-
-    col  = col * (0.15 + 0.70 * diff1 + 0.25 * diff2);
-    col += spec1 * vec3(1.0, 0.3, 0.3) * 0.6;
-    col += rim   * vec3(0.8, 0.0, 0.0) * 0.5;
-
-    return col;
-  }
-
-  void main(){
-    // Discard back-hemisphere (makes the sphere look like a face card in 3D)
-    if(vFacing < -0.05) discard;
-
-    vec3 N = normalize(vNWorld);
-    vec3 V = vec3(0.0, 0.0, 1.0); // view direction (world-space approx)
-
-    /* ── Photo ── */
-    vec4 photoSample = texture2D(uFace, vFaceUV);
-    // Chromatic aberration boost on morph
-    float ca = uMorph * 0.022;
-    vec3 photo;
-    photo.r = texture2D(uFace, vFaceUV + vec2(ca,  0.0)).r;
-    photo.g = photoSample.g;
-    photo.b = texture2D(uFace, vFaceUV - vec2(ca,  0.0)).b;
-
-    // Skin-tone fallback if no texture
-    if(uHasTex < 0.5) photo = vec3(0.70, 0.50, 0.35);
-
-    /* ── Mask ── */
-    vec3 mask = spideyMask(vFaceUV);
-
-    /* ── Morph boundary: organic noise sweep left→right ── */
-    float n1 = snoise(vFaceUV * 5.0  + uTime * 0.22) * 0.20;
-    float n2 = snoise(vFaceUV * 12.0 - uTime * 0.35) * 0.08;
-    // boundary value moves from right (1.5) → left (-0.5) as uMorph → 1
-    float boundary = vFaceUV.x + n1 + n2 - (1.0 - uMorph * 1.5);
-    float sweep = smoothstep(-0.05, 0.05, boundary);
-
-    /* ── Blend ── */
-    vec3 col = mix(photo, mask, sweep * uMorph);
-
-    /* ── Glowing edge at mask boundary ── */
-    float edgeGlow = smoothstep(0.08, 0.0, abs(boundary - 0.0)) * uMorph;
-    col += edgeGlow * vec3(1.2, 0.1, 0.1);
-
-    /* ── Shade / lighting ── */
-    col = shade(col, N, V);
-
-    /* ── Vignette ── */
-    float vig = 1.0 - dot(vFaceUV - 0.5, vFaceUV - 0.5) * 1.5;
-    col *= max(vig, 0.0);
-
-    /* ── Horizon fade (smooth edge of sphere) ── */
-    float alpha = smoothstep(-0.05, 0.35, vFacing) * uReveal;
-
-    gl_FragColor = vec4(col, alpha);
-  }
-`;
-
-    /* ─── SPHERE MESH (the actual 3D head!) ────────────────────── */
-    const mat = new THREE.ShaderMaterial({
-        vertexShader: VERT,
-        fragmentShader: FRAG,
-        uniforms: {
-            uFace: { value: texFace },
-            uTime: { value: 0 },
-            uMouse: { value: new THREE.Vector2(0, 0) },
-            uMorph: { value: 0 },
-            uReveal: { value: 0 },
-            uHasTex: { value: 0 },
-        },
+    const material = new THREE.MeshStandardMaterial({
+        map: maskTexture,
         transparent: true,
+        opacity: 0,        // GSAP will animate this to 1
+        clippingPlanes: [clipPlane],
+        clipShadows: true,
         side: THREE.FrontSide,
-        depthWrite: false,
+        roughness: 0.55,
+        metalness: 0.15,
     });
 
-    // 3D sphere — portrait is taller than wide, so ScaleY
-    const sphere = new THREE.Mesh(
-        new THREE.SphereGeometry(2.0, 128, 128),
-        mat
-    );
-    sphere.scale.set(1.0, 1.28, 0.78); // portrait proportions, slight depth compression
-    scene.add(sphere);
+    const maskMesh = new THREE.Mesh(geometry, material);
+    /* Shape it more like a face than a perfect sphere */
+    maskMesh.scale.set(1.0, 1.22, 0.62);
+    scene.add(maskMesh);
 
-    /* ─── WEB STRAND LINES (true 3D depth — back plane) ───────── */
-    const wMat = new THREE.LineBasicMaterial({
-        color: 0x5a0000, transparent: true, opacity: 0.22,
-    });
-    for (let i = 0; i < 16; i++) {
-        const a = (i / 16) * Math.PI * 2;
-        const pts = [
-            new THREE.Vector3(0, 0, -3.5),
-            new THREE.Vector3(Math.cos(a) * 10, Math.sin(a) * 10, -3.5),
-        ];
-        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), wMat));
-    }
-    for (let r = 1; r <= 7; r++) {
-        const pts = [];
-        for (let i = 0; i <= 8; i++) {
-            const a = (i / 8) * Math.PI * 2;
-            pts.push(new THREE.Vector3(Math.cos(a) * r * 1.25, Math.sin(a) * r * 1.25, -3.5));
-        }
-        scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), wMat));
-    }
 
-    /* ─── FLOATING PARTICLES ───────────────────────────────────── */
-    (function buildParticles() {
-        const N = 500;
-        const posA = new Float32Array(N * 3);
-        for (let i = 0; i < N; i++) {
-            posA[i * 3] = (Math.random() - .5) * 14;
-            posA[i * 3 + 1] = (Math.random() - .5) * 14;
-            posA[i * 3 + 2] = (Math.random() - .5) * 6 - 2;
-        }
-        const pg = new THREE.BufferGeometry();
-        pg.setAttribute('position', new THREE.BufferAttribute(posA, 3));
-        const pm = new THREE.PointsMaterial({
-            color: 0xcc0000, size: 0.055,
-            transparent: true, opacity: 0.55,
-            sizeAttenuation: true,
-        });
-        const pts = new THREE.Points(pg, pm);
-        scene.add(pts);
-        gsap.to(pts.rotation, { y: Math.PI * 2, duration: 55, repeat: -1, ease: 'none' });
-    })();
+    /* ── 4. Lighting ────────────────────────────────────────────── */
+    scene.add(new THREE.AmbientLight(0xffffff, 0.40));
 
-    /* ─── LIGHTS ────────────────────────────────────────────────── */
-    scene.add(new THREE.AmbientLight(0x220000, 2.5));
+    const redLight = new THREE.PointLight(0xff0000, 3.5, 10);
+    redLight.position.set(2, 2, 3);
+    scene.add(redLight);
 
-    const keyLight = new THREE.PointLight(0xff2020, 10, 14);
-    keyLight.position.set(-4, 3, 3);
-    keyLight.castShadow = true;
-    scene.add(keyLight);
+    const rimLight = new THREE.PointLight(0x4422ff, 1.2, 8);
+    rimLight.position.set(-2, 1, -1);   // rim from behind-left = cinematic depth
+    scene.add(rimLight);
 
-    const fillLight = new THREE.PointLight(0xffffff, 2, 12);
-    fillLight.position.set(4, -2, 3);
-    scene.add(fillLight);
+    const topLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    topLight.position.set(0, 5, 3);
+    scene.add(topLight);
 
-    /* ─── MOUSE ─────────────────────────────────────────────────── */
-    const mouseTarget = new THREE.Vector2();
-    const mouseCur = new THREE.Vector2();
 
-    window.addEventListener('mousemove', e => {
-        mouseTarget.x = (e.clientX / window.innerWidth - .5) * 2;
-        mouseTarget.y = -(e.clientY / window.innerHeight - .5) * 2;
-    });
-    window.addEventListener('touchmove', e => {
-        const t = e.touches[0];
-        mouseTarget.x = (t.clientX / window.innerWidth - .5) * 2;
-        mouseTarget.y = -(t.clientY / window.innerHeight - .5) * 2;
-    }, { passive: true });
+    /* ── 5. GSAP Timeline (from the Roadmap) ───────────────────── */
 
-    /* ─── GSAP INTRO + MASK LOOP ───────────────────────────────── */
-    const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+    /* First: animate the page UI in */
+    const pageTL = gsap.timeline({ defaults: { ease: 'power4.out' } });
+    pageTL
+        .to('#nav', { opacity: 1, y: 0, duration: 1.0 }, 0.3)
+        .to('#role', { opacity: 1, x: 0, duration: .9 }, 0.8)
+        .to('#h1a', { opacity: 1, y: 0, skewX: 0, duration: .8 }, 1.1)
+        .to('#h1b', { opacity: 1, y: 0, skewX: 0, duration: .8 }, 1.45)
+        .to('#desc', { opacity: 1, y: 0, duration: .7 }, 1.85)
+        .to('#cta', { opacity: 1, y: 0, duration: .7 }, 2.1)
+        .to('#photo-card', { opacity: 1, y: 0, scale: 1, duration: 1.2, ease: 'power3.out' }, 0.6)
+        .to('.card-tag', { opacity: 1, duration: .5 }, 1.8)
+        .to('#foot', { opacity: 1, y: 0, duration: .7 }, 2.4);
 
-    tl
-        .to(mat.uniforms.uReveal, { value: 1, duration: 2.2 }, 0.5)
-        .from(sphere.position, { z: -10, y: -2, duration: 2.6 }, 0.5)
-        .to('#nav', { opacity: 1, y: 0, duration: 1 }, 1.4)
-        .to('#badge', { opacity: 1, x: 0, duration: .9 }, 1.9)
-        .to('#h1a', { opacity: 1, y: 0, skewX: 0, duration: .8 }, 2.3)
-        .to('#h1b', { opacity: 1, y: 0, skewX: 0, duration: .8 }, 2.65)
-        .to('#sub', { opacity: 1, y: 0, duration: .7 }, 3.1)
-        .to('#foot', { opacity: 1, y: 0, duration: .8 }, 3.4)
-        // Mask morph loops forever
-        .to(mat.uniforms.uMorph, {
-            value: 1, duration: 2.8,
+    /* Then: Spider-Man mask reveal (from the Roadmap steps) */
+    const maskTL = gsap.timeline({ delay: 2.0 });
+
+    // Step 1 – Mask fades in
+    maskTL.to(material, {
+        opacity: 1,
+        duration: 0.8,
+        ease: 'power2.out'
+    })
+
+        // Step 2 – Elastic scale-up (feeling of mask being worn/stretched)
+        .from(maskMesh.scale, {
+            x: 0.25, y: 0.25, z: 0.25,
+            duration: 1.3,
+            ease: 'elastic.out(1, 0.5)',
+        }, '<0.15')
+
+        // Step 3 – Comes in from the side (3D rotation reveal, exactly like roadmap)
+        .from(maskMesh.rotation, {
+            y: -Math.PI / 2,
+            duration: 1.6,
+            ease: 'power3.out',
+        }, '<')
+
+        // Step 4 – Red light pulse (mask "activating")
+        .to(redLight, {
+            intensity: 8,
+            duration: 0.25,
+            yoyo: true,
+            repeat: 5,
+            ease: 'power1.inOut',
+        }, '-=0.4')
+
+        // Step 5 – Continuous idle mask morph: mask disappears and reappears
+        .to(material, {
+            opacity: 0,
+            duration: 1.8,
             ease: 'power2.inOut',
-            repeat: -1, yoyo: true, repeatDelay: 1.0,
-        }, 4.2);
+            delay: 2.0,
+            repeat: -1,
+            yoyo: true,
+            repeatDelay: 1.5,
+        });
 
-    // Light dance
-    gsap.to(keyLight, {
-        intensity: 18, duration: 2, repeat: -1, yoyo: true, ease: 'sine.inOut',
-    });
-    gsap.to(keyLight.position, {
-        x: 4, y: -2, duration: 8, repeat: -1, yoyo: true, ease: 'sine.inOut',
+
+    /* ── 6. Mouse Parallax — mask follows mouse (roadmap step 6) ── */
+    const canvasRect = canvas.getBoundingClientRect();
+
+    canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+
+        const dx = (e.clientX - cx) / (rect.width / 2);
+        const dy = (e.clientY - cy) / (rect.height / 2);
+
+        // GSAP smooth 3D rotation (exactly like roadmap)
+        gsap.to(maskMesh.rotation, {
+            y: dx * 0.45,
+            x: -dy * 0.30,
+            duration: 0.8,
+            ease: 'power2.out',
+        });
+
+        // Light follows mouse too (more dramatic)
+        gsap.to(redLight.position, {
+            x: dx * 3,
+            y: dy * -2,
+            duration: 0.6,
+            ease: 'power2.out',
+        });
     });
 
-    /* ─── RESIZE ─────────────────────────────────────────────────── */
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+    /* Reset when mouse leaves the canvas */
+    canvas.addEventListener('mouseleave', () => {
+        gsap.to(maskMesh.rotation, {
+            x: 0, y: 0.0,
+            duration: 1.2,
+            ease: 'elastic.out(1, .6)',
+        });
     });
 
-    /* ─── RENDER LOOP ───────────────────────────────────────────── */
+
+    /* ── 7. Render Loop ──────────────────────────────────────────── */
     const clock = new THREE.Clock();
 
-    (function loop() {
-        requestAnimationFrame(loop);
+    function animate() {
+        requestAnimationFrame(animate);
 
         const t = clock.getElapsedTime();
-        mat.uniforms.uTime.value = t;
 
-        // Smooth mouse
-        mouseCur.x += (mouseTarget.x - mouseCur.x) * 0.06;
-        mouseCur.y += (mouseTarget.y - mouseCur.y) * 0.06;
-        mat.uniforms.uMouse.value.copy(mouseCur);
+        // Gentle breathing rotation (idle when no mouse)
+        maskMesh.rotation.y += (0 - maskMesh.rotation.y) * 0.005
+            + Math.sin(t * 0.4) * 0.003;
 
-        // ── REAL 3D ROTATION of the sphere with mouse ──
-        // This is what makes it ACTUALLY look 3D — you see the sphere curve!
-        sphere.rotation.y = mouseCur.x * 0.55; // left-right reveals the sphere roundness
-        sphere.rotation.x = -mouseCur.y * 0.35; // up-down tilt
-
-        // Gentle idle float
-        sphere.position.y = Math.sin(t * 0.6) * 0.06;
-        sphere.position.x = Math.cos(t * 0.4) * 0.03;
-
-        // Camera subtle drift
-        camera.position.x = mouseCur.x * 0.15;
-        camera.position.y = mouseCur.y * 0.10;
-        camera.lookAt(0, 0, 0);
+        // Pulsing rim light
+        rimLight.intensity = 0.8 + Math.sin(t * 1.2) * 0.4;
 
         renderer.render(scene, camera);
-    })();
+    }
+    animate();
+
+
+    /* ── Resize ──────────────────────────────────────────────────── */
+    window.addEventListener('resize', () => {
+        const W = canvas.offsetWidth;
+        const H = canvas.offsetHeight;
+        camera.aspect = W / H;
+        camera.updateProjectionMatrix();
+        renderer.setSize(W, H);
+    });
 
 })();
