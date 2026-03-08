@@ -125,11 +125,17 @@
         return new THREE.CanvasTexture(c);
     }
 
-    /* ── Photo texture from <img> element (bypasses file:// CORS) ─ */
+    /* ── Photo texture from base64 data (works with file:// — no server needed!) ─ */
     function makePhotoTexture() {
-        // Try loading via an img element
         const img = new Image();
-        img.src = '21.png';
+
+        // PHOTO_DATA is defined in photo.js (the base64-encoded 21.png)
+        // If photo.js loaded successfully, use it; otherwise fall back to file path
+        if (typeof PHOTO_DATA !== 'undefined') {
+            img.src = PHOTO_DATA;
+        } else {
+            img.src = '21.png'; // fallback for http:// server
+        }
 
         const tex = new THREE.Texture(img);
         tex.minFilter = THREE.LinearFilter;
@@ -139,8 +145,6 @@
             tex.needsUpdate = true;
             if (photoMat) photoMat.needsUpdate = true;
         };
-        // If image fails, mesh still renders (will be black/grey from displacement)
-        img.onerror = () => console.warn('Photo failed — check file path / use Live Server');
 
         if (img.complete && img.naturalWidth > 0) tex.needsUpdate = true;
         return tex;
