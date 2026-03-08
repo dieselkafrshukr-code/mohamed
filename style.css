@@ -1,17 +1,16 @@
-/* ── RESET ──────────────────────────────────────────────────── */
 *,
 *::before,
 *::after {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
+    box-sizing: border-box
 }
 
 :root {
     --red: #e60000;
-    --red-glow: rgba(230, 0, 0, .65);
-    --black: #060606;
-    --white: #f0f0f0;
+    --rdg: rgba(230, 0, 0, .65);
+    --blk: #060606;
+    --wht: #f0f0f0
 }
 
 html,
@@ -19,266 +18,231 @@ body {
     width: 100%;
     height: 100%;
     overflow: hidden;
-    background: var(--black);
-    color: var(--white);
-    font-family: 'Rajdhani', sans-serif;
+    background: var(--blk);
+    color: var(--wht);
+    font-family: 'Rajdhani', sans-serif
 }
 
-/* ── BG CANVAS ──────────────────────────────────────────────── */
-#bg-canvas {
+/* bg canvas */
+#bg-particles {
     position: fixed;
     inset: 0;
     z-index: 0;
-    pointer-events: none;
+    pointer-events: none
 }
 
-/* ── PAGE SHELL ─────────────────────────────────────────────── */
-.page {
+/* layout */
+.layout {
     position: relative;
     z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    gap: 4rem;
+    padding: 0 4rem;
 }
 
-/* ── NAV ────────────────────────────────────────────────────── */
+/* LEFT col */
+.left-col {
+    flex: 1;
+    max-width: 460px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
 nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.6rem 3.5rem;
+    margin-bottom: 3.5rem;
     opacity: 0;
-    transform: translateY(-30px);
-    flex-shrink: 0;
+    transform: translateY(-25px);
 }
 
 .brand {
     font-family: 'Anton', sans-serif;
-    font-size: 1.9rem;
-    letter-spacing: 3px;
+    font-size: 1.8rem;
+    letter-spacing: 3px
 }
 
 .brand em {
     color: var(--red);
     font-style: normal;
-    text-shadow: 0 0 12px var(--red);
+    text-shadow: 0 0 12px var(--red)
 }
 
 nav ul {
     list-style: none;
     display: flex;
-    gap: 2rem;
+    gap: 1.5rem
 }
 
 nav a {
     color: rgba(255, 255, 255, .5);
     text-decoration: none;
     font-weight: 700;
-    font-size: .9rem;
+    font-size: .85rem;
     letter-spacing: 2px;
-    transition: color .25s;
+    transition: color .25s
 }
 
 nav a:hover {
-    color: var(--red);
+    color: var(--red)
 }
 
 .hire {
     border: 1px solid var(--red) !important;
     border-radius: 3px;
-    padding: .3rem 1rem;
-    color: var(--red) !important;
+    padding: .25rem .9rem;
+    color: var(--red) !important
 }
 
 .hire:hover {
     background: var(--red) !important;
-    color: #fff !important;
+    color: #fff !important
 }
 
-/* ── HERO ────────────────────────────────────────────────────── */
-.hero {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5rem;
-    padding: 0 4rem;
-    overflow: hidden;
-}
-
-/* LEFT: text */
 .hero-text {
     display: flex;
     flex-direction: column;
-    gap: .5rem;
-    max-width: 420px;
+    gap: .55rem
 }
 
 .role {
     font-family: 'Orbitron', sans-serif;
-    font-size: .72rem;
+    font-size: .7rem;
     letter-spacing: 4px;
     color: var(--red);
     text-shadow: 0 0 10px var(--red);
     opacity: 0;
-    transform: translateX(-40px);
+    transform: translateX(-35px);
 }
 
 h1 {
     font-family: 'Anton', sans-serif;
-    font-size: clamp(3.5rem, 6vw, 6rem);
+    font-size: clamp(3.2rem, 5.5vw, 5.8rem);
     line-height: .88;
     opacity: 0;
-    transform: translateY(70px) skewX(-3deg);
+    transform: translateY(60px) skewX(-2deg);
 }
 
 h1.stroke {
     -webkit-text-stroke: 2px var(--red);
     color: transparent;
-    text-shadow: 0 0 35px var(--red-glow);
+    text-shadow: 0 0 30px var(--rdg)
 }
 
 .desc {
-    font-size: 1rem;
-    letter-spacing: 1.5px;
-    color: rgba(255, 255, 255, .4);
-    line-height: 1.6;
+    font-size: .95rem;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, .38);
+    line-height: 1.65;
+    max-width: 360px;
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(18px);
 }
 
-.cta {
-    display: inline-block;
+.ctas {
+    display: flex;
+    gap: 1rem;
     margin-top: .8rem;
-    padding: .7rem 1.8rem;
-    border: 1px solid rgba(255, 255, 255, .25);
-    border-radius: 4px;
-    color: var(--white);
+    opacity: 0;
+    transform: translateY(18px)
+}
+
+.btn-primary {
+    padding: .65rem 1.6rem;
+    background: var(--red);
+    color: #fff;
     text-decoration: none;
     font-weight: 700;
-    font-size: .85rem;
+    font-size: .8rem;
     letter-spacing: 2px;
-    transition: border-color .3s, color .3s;
-    opacity: 0;
-    transform: translateY(20px);
+    border-radius: 4px;
+    transition: opacity .25s;
 }
 
-.cta:hover {
+.btn-primary:hover {
+    opacity: .85
+}
+
+.btn-ghost {
+    padding: .65rem 1.6rem;
+    border: 1px solid rgba(255, 255, 255, .22);
+    color: rgba(255, 255, 255, .5);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: .8rem;
+    letter-spacing: 2px;
+    border-radius: 4px;
+    transition: border-color .25s, color .25s;
+}
+
+.btn-ghost:hover {
     border-color: var(--red);
-    color: var(--red);
+    color: var(--red)
 }
 
-/* ── PHOTO CARD ──────────────────────────────────────────────── */
-.photo-card {
+/* RIGHT col */
+.right-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Hero canvas wrapper – fixed 400×560 like roadmap */
+#hero {
+    width: 400px;
+    height: 560px;
     position: relative;
-    width: 320px;
-    height: 430px;
-    border-radius: 12px;
+    border-radius: 14px;
     overflow: hidden;
-    box-shadow:
-        0 0 0 1px rgba(255, 255, 255, .06),
-        0 30px 80px rgba(0, 0, 0, .8),
-        0 0 60px rgba(200, 0, 0, .15);
-    flex-shrink: 0;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .06),
+        0 40px 90px rgba(0, 0, 0, .85),
+        0 0 60px rgba(180, 0, 0, .18);
     opacity: 0;
-    transform: translateY(60px) scale(.95);
+    transform: translateY(50px) scale(.95);
 }
 
-#user-photo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center top;
+#canvas {
+    width: 100% !important;
+    height: 100% !important;
     display: block;
 }
 
-/* ← The 3D canvas sits only over the HEAD AREA of the photo */
-#mask-canvas {
+/* Debug panel (hidden by default, for positioning the mask) */
+#debug-panel {
+    display: none;
+    /* set to 'flex' to enable live controls */
     position: absolute;
-    /* Tune these % values to align with where the head is in YOUR photo */
-    top: 3%;
-    left: 8%;
-    width: 84%;
-    height: 55%;
-    /* head is roughly top 55% of a portrait shot */
-    pointer-events: auto;
-    /* mouse events for parallax */
-    z-index: 2;
+    bottom: 10px;
+    left: 10px;
+    z-index: 99;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(0, 0, 0, .7);
+    padding: 8px;
+    border-radius: 6px;
+    font-size: .7rem;
+    color: #fff;
 }
 
-.card-tag {
-    position: absolute;
-    bottom: 14px;
-    right: 14px;
+#debug-panel label {
+    display: flex;
+    flex-direction: column;
+    gap: 2px
+}
+
+/* canvas label */
+.canvas-label {
     font-family: 'Orbitron', sans-serif;
-    font-size: .6rem;
+    font-size: .62rem;
     letter-spacing: 3px;
-    color: var(--red);
-    padding: .3rem .8rem;
-    border: 1px solid rgba(230, 0, 0, .4);
-    border-radius: 3px;
-    background: rgba(0, 0, 0, .5);
+    color: rgba(255, 255, 255, .2);
     opacity: 0;
-}
-
-/* ── FOOTER ──────────────────────────────────────────────────── */
-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.2rem 3.5rem;
-    flex-shrink: 0;
-    opacity: 0;
-    transform: translateY(30px);
-}
-
-.socials {
-    display: flex;
-    gap: 2rem;
-}
-
-.socials a {
-    color: rgba(255, 255, 255, .3);
-    text-decoration: none;
-    font-family: 'Orbitron', sans-serif;
-    font-size: .68rem;
-    letter-spacing: 2px;
-    transition: color .25s;
-}
-
-.socials a:hover {
-    color: var(--red);
-}
-
-.scroll-hint {
-    display: flex;
-    align-items: center;
-    gap: .6rem;
-    font-size: .72rem;
-    letter-spacing: 3px;
-    color: rgba(255, 255, 255, .25);
-}
-
-.dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--red);
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: .3;
-        transform: scale(.6);
-    }
+    transform: translateY(10px);
 }

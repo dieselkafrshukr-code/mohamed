@@ -7,74 +7,59 @@
     <title>Mohamed Walid | AI Engineer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
-        href="https://fonts.googleapis.com/css2?family=Anton&family=Orbitron:wght@700;900&family=Rajdhani:wght@300;600;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Anton&family=Orbitron:wght@700&family=Rajdhani:wght@300;600;700&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-    <!-- ░ BACKGROUND WEB LINES ░ -->
-    <canvas id="bg-canvas"></canvas>
+    <!-- Full-page dark background -->
+    <canvas id="bg-particles"></canvas>
 
-    <!-- ░ PAGE ░ -->
-    <div class="page" id="page">
+    <div class="layout">
 
-        <!-- NAV -->
-        <nav id="nav">
-            <span class="brand">M<em>.</em>WALID</span>
-            <ul>
-                <li><a href="#">ABOUT</a></li>
-                <li><a href="#">PROJECTS</a></li>
-                <li><a href="#" class="hire">HIRE ME</a></li>
-            </ul>
-        </nav>
+        <!-- LEFT: hero text -->
+        <div class="left-col" id="left-col">
+            <nav id="nav">
+                <span class="brand">M<em>.</em>WALID</span>
+                <ul>
+                    <li><a href="#">ABOUT</a></li>
+                    <li><a href="#">PROJECTS</a></li>
+                    <li><a href="#" class="hire">HIRE ME</a></li>
+                </ul>
+            </nav>
 
-        <!-- HERO -->
-        <section class="hero">
-
-            <!-- LEFT: text -->
-            <div class="hero-text" id="hero-text">
-                <p class="role" id="role">ARTIFICIAL INTELLIGENCE</p>
+            <div class="hero-text">
+                <p class="role" id="role">ARTIFICIAL INTELLIGENCE ENG.</p>
                 <h1 id="h1a">MOHAMED</h1>
                 <h1 id="h1b" class="stroke">WALID</h1>
                 <p class="desc" id="desc">
-                    Building intelligent systems &amp; immersive digital experiences
+                    Building AI systems &amp; immersive digital experiences with cutting-edge technology
                 </p>
-                <a href="#" class="cta" id="cta">VIEW PROJECTS ↗</a>
+                <div class="ctas" id="ctas">
+                    <a href="#" class="btn-primary">VIEW PROJECTS</a>
+                    <a href="https://github.com/dieselkafrshukr-code/mohamed" class="btn-ghost" target="_blank">GITHUB
+                        ↗</a>
+                </div>
             </div>
+        </div>
 
-            <!-- RIGHT: photo card + 3D mask -->
-            <div class="photo-card" id="photo-card">
-
-                <!-- Real photo — background layer -->
-                <img src="21.png" id="user-photo" alt="Mohamed Walid" />
-
-                <!-- Three.js canvas — positioned over head area ONLY -->
-                <canvas id="mask-canvas"></canvas>
-
-                <!-- decorative label -->
-                <div class="card-tag">SPIDER-MAN AI</div>
-
+        <!-- RIGHT: Three.js hero canvas (400×560 like roadmap) -->
+        <div class="right-col" id="right-col">
+            <div id="hero">
+                <canvas id="canvas"></canvas>
+                <!-- Debug position controls (hidden by default) -->
+                <div id="debug-panel">
+                    <label>Y: <input type="range" id="posY" min="-1.5" max="1.5" step="0.01" value="0.55" /></label>
+                    <label>Scale: <input type="range" id="sc" min="0.3" max="1.5" step="0.01" value="0.85" /></label>
+                </div>
             </div>
+            <p class="canvas-label" id="clabel">↔ MOVE MOUSE — 3D PARALLAX</p>
+        </div>
 
-        </section>
+    </div><!-- /layout -->
 
-        <!-- FOOTER -->
-        <footer id="foot">
-            <div class="socials">
-                <a href="https://github.com/dieselkafrshukr-code/mohamed" target="_blank">GITHUB</a>
-                <a href="#">LINKEDIN</a>
-                <a href="#">TWITTER</a>
-            </div>
-            <span class="scroll-hint">
-                <span class="dot"></span>MOVE MOUSE ON MASK
-            </span>
-        </footer>
-
-    </div>
-
-    <!-- LIBS -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="script.js"></script>
