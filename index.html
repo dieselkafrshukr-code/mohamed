@@ -1,42 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mohamed Walid | AI Engineer Portfolio</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mohamed Walid | AI Engineer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Anton&family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-    <div class="background-text">
-        <div class="line outline">ARTIFICIAL</div>
-        <div class="line filled">INTELLIGENCE</div>
-        <div class="line outline">ENGINEER</div>
-    </div>
 
-    <!-- Canvas for Three.js magic -->
-    <div id="canvas-container"></div>
+    <!-- Particle canvas behind everything -->
+    <canvas id="bg-particles"></canvas>
 
-    <div class="overlay-content">
-        <div class="header">
-            <h2 class="logo">M. WALID</h2>
-            <nav>
-                <a href="#">ABOUT</a>
-                <a href="#">PROJECTS</a>
-                <a href="#">CONTACT</a>
-            </nav>
+    <!-- Three.js canvas -->
+    <div id="scene-wrap"></div>
+
+    <!-- Red scan lines overlay -->
+    <div class="scanlines"></div>
+
+    <!-- Hero UI -->
+    <div class="ui" id="ui">
+
+        <!-- Top nav -->
+        <nav class="nav" id="nav">
+            <span class="brand">M<span class="accent">.</span>WALID</span>
+            <ul>
+                <li><a href="#">ABOUT</a></li>
+                <li><a href="#">PROJECTS</a></li>
+                <li><a href="#">SKILLS</a></li>
+                <li><a href="#" class="cta-btn">CONTACT</a></li>
+            </ul>
+        </nav>
+
+        <!-- Centre hero text -->
+        <div class="hero-text" id="hero-text">
+            <p class="sub" id="sub">ARTIFICIAL INTELLIGENCE ENGINEER</p>
+            <h1 class="name" id="name">
+                <span class="word" id="w1">MOHAMED</span>
+                <span class="word accent" id="w2">WALID</span>
+            </h1>
         </div>
 
-        <div class="bottom-info">
-            <h1>MOHAMED <span>WALID</span></h1>
-            <p>Exploring the boundaries of AI & Web</p>
-            <div class="hint">Hover over the image for Venom spread effect</div>
+        <!-- Bottom bar -->
+        <div class="bottom-bar" id="bottom-bar">
+            <div class="scroll-hint">
+                <span class="dot"></span>
+                <span>SCROLL TO EXPLORE</span>
+            </div>
+            <div class="socials">
+                <a href="#" aria-label="GitHub">GH</a>
+                <a href="#" aria-label="LinkedIn">LI</a>
+                <a href="#" aria-label="Twitter">TW</a>
+            </div>
         </div>
-    </div>
 
-    <!-- Libraries -->
+    </div><!-- /ui -->
+
+    <!-- Three.js & GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>

@@ -1,141 +1,244 @@
-* {
+/* ============================
+   BASE RESET & TOKENS
+   ============================ */
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+:root {
+    --red: #e81c20;
+    --red-dark: #8b0000;
+    --black: #070707;
+    --white: #f2f2f2;
+    --gold: #f0c040;
+    --font-dis: 'Anton', sans-serif;
+    --font-tech: 'Orbitron', sans-serif;
+    --font-body: 'Rajdhani', sans-serif;
+}
+
+html,
 body {
-    background: radial-gradient(circle at center, #2e0000 0%, #000000 100%);
-    height: 100vh;
-    overflow: hidden;
-    font-family: 'Rajdhani', sans-serif;
-    color: white;
-}
-
-/* Background Huge Text */
-.background-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    text-align: center;
-    z-index: 1;
-    pointer-events: none;
-    font-family: 'Anton', sans-serif;
-    line-height: 0.85;
-    white-space: nowrap;
-}
-
-.background-text .line {
-    font-size: 14vw;
-    text-transform: uppercase;
-    user-select: none;
-    letter-spacing: 5px;
-}
-
-.background-text .line.outline {
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.15);
-}
-
-.background-text .line.filled {
-    color: rgba(255, 0, 0, 0.05);
-    background: -webkit-linear-gradient(#4d0008, #180002);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 50px rgba(255, 0, 0, 0.2);
-}
-
-/* Three.js Container */
-#canvas-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    z-index: 2;
-    cursor: crosshair;
-}
-
-/* UI Overlay Layer */
-.overlay-content {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
-    z-index: 3;
+    overflow: hidden;
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--font-body);
+}
+
+/* ============================
+   PARTICLE BACKGROUND CANVAS
+   ============================ */
+#bg-particles {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
     pointer-events: none;
+}
+
+/* ============================
+   THREE.JS CANVAS WRAPPER
+   ============================ */
+#scene-wrap {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+}
+
+#scene-wrap canvas {
+    display: block;
+}
+
+/* ============================
+   SCAN LINES OVERLAY
+   ============================ */
+.scanlines {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: repeating-linear-gradient(to bottom,
+            transparent 0px,
+            transparent 3px,
+            rgba(0, 0, 0, 0.07) 3px,
+            rgba(0, 0, 0, 0.07) 4px);
+}
+
+/* ============================
+   UI LAYER
+   ============================ */
+.ui {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 2rem 4rem;
+    pointer-events: none;
 }
 
-.header {
+/* ---- NAV ---- */
+.nav {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    padding: 1.6rem 3.5rem;
     pointer-events: auto;
+    opacity: 0;
+    /* animated in */
+    transform: translateY(-30px);
 }
 
-.header .logo {
-    font-family: 'Anton', sans-serif;
+.brand {
+    font-family: var(--font-dis);
     font-size: 2rem;
     letter-spacing: 2px;
-    color: #fff;
-    cursor: pointer;
 }
 
-nav a {
-    color: rgba(255, 255, 255, 0.6);
+.accent {
+    color: var(--red);
+    text-shadow: 0 0 12px var(--red);
+}
+
+.nav ul {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+}
+
+.nav ul a {
+    color: rgba(255, 255, 255, 0.65);
     text-decoration: none;
-    margin-left: 2rem;
+    font-family: var(--font-body);
     font-weight: 700;
-    font-size: 1.1rem;
-    transition: color 0.3s;
-    letter-spacing: 1px;
-}
-
-nav a:hover {
-    color: #ff3333;
-}
-
-.bottom-info {
-    text-align: center;
-    pointer-events: auto;
-}
-
-.bottom-info h1 {
-    font-family: 'Anton', sans-serif;
-    font-size: 4rem;
-    letter-spacing: 2px;
-    margin-bottom: 0px;
-    text-transform: uppercase;
-}
-
-.bottom-info h1 span {
-    color: #ff0000;
-    text-shadow: 0 0 20px #ff0000;
-}
-
-.bottom-info p {
-    font-size: 1.5rem;
-    letter-spacing: 4px;
-    color: rgba(255, 255, 255, 0.7);
-    text-transform: uppercase;
-    font-weight: 700;
-    margin-bottom: 2rem;
-}
-
-.hint {
     font-size: 1rem;
-    color: rgba(255, 0, 0, 0.8);
+    letter-spacing: 2px;
+    transition: color 0.3s;
+}
+
+.nav ul a:hover {
+    color: var(--red);
+}
+
+.cta-btn {
+    border: 1px solid var(--red) !important;
+    border-radius: 4px;
+    padding: 0.4rem 1.2rem;
+    color: var(--red) !important;
+    transition: background 0.3s, color 0.3s !important;
+}
+
+.cta-btn:hover {
+    background: var(--red) !important;
+    color: #fff !important;
+}
+
+/* ---- HERO TEXT ---- */
+.hero-text {
+    text-align: left;
+    padding: 0 3.5rem;
+    align-self: flex-start;
+    margin-top: auto;
+    margin-bottom: 6rem;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.sub {
+    font-family: var(--font-tech);
+    font-size: 0.85rem;
+    letter-spacing: 4px;
+    color: var(--red);
+    text-shadow: 0 0 10px var(--red);
+    opacity: 0;
+    transform: translateX(-40px);
+}
+
+.name {
+    font-family: var(--font-dis);
+    font-size: clamp(4rem, 9vw, 9rem);
+    line-height: 0.9;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1em;
+}
+
+.word {
     display: inline-block;
-    padding: 0.5rem 1.5rem;
-    border: 1px solid rgba(255, 0, 0, 0.4);
-    border-radius: 50px;
-    letter-spacing: 1px;
+    opacity: 0;
+    transform: translateY(80px) skewX(-5deg);
+    color: var(--white);
+    text-shadow: 0 0 0 transparent;
+}
+
+.word.accent {
+    color: var(--red);
+    text-shadow: 0 0 30px rgba(232, 28, 32, 0.8), 0 0 60px rgba(232, 28, 32, 0.4);
+    -webkit-text-stroke: 1px rgba(255, 80, 80, 0.3);
+}
+
+/* ---- BOTTOM BAR ---- */
+.bottom-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.6rem 3.5rem;
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+.scroll-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.75rem;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--red);
+    animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.3;
+        transform: scale(0.6);
+    }
+}
+
+.socials {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.socials a {
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: none;
+    font-family: var(--font-tech);
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    transition: color 0.3s;
+}
+
+.socials a:hover {
+    color: var(--red);
 }
