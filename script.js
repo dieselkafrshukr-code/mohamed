@@ -53,6 +53,7 @@ const fragmentShader = `
     uniform float uTime;
     uniform vec2 uMouse;
     uniform float uHover;
+    uniform float uAlpha;
 
     // Simplex 2D noise
     vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
@@ -107,7 +108,7 @@ const fragmentShader = `
         // Final mix
         vec4 finalColor = mix(texColor, corruptedColor, spread);
         
-        gl_FragColor = finalColor;
+        gl_FragColor = vec4(finalColor.rgb, uAlpha);
     }
 `;
 
@@ -120,7 +121,8 @@ const material = new THREE.ShaderMaterial({
         uTexture: { value: texture },
         uTime: { value: 0 },
         uMouse: { value: new THREE.Vector2(0.5, 0.5) },
-        uHover: { value: 0 }
+        uHover: { value: 0 },
+        uAlpha: { value: 0 } // start fully transparent
     },
     transparent: true,
 });
@@ -196,7 +198,13 @@ gsap.from(".background-text .line", {
 gsap.from(plane.position, {
     y: -5,
     z: -10,
-    opacity: 0,
+    duration: 2.5,
+    ease: "power4.out",
+    delay: 0.8
+});
+
+gsap.to(material.uniforms.uAlpha, {
+    value: 1,
     duration: 2.5,
     ease: "power4.out",
     delay: 0.8
